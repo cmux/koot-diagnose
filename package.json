@@ -1,0 +1,74 @@
+{
+    "name": "koot-diagnose",
+    "version": "0.12.0-alpha.0",
+    "description": "Automate test cases for any website, webapp, HTML5 page and more",
+    "main": "index.js",
+    "sideEffects": false,
+    "scripts": {
+        "test": "jest __tests__/.+\\.test\\.[jt]sx?$",
+        "up": "yarn upgrade-interactive --latest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cmux/koot"
+    },
+    "keywords": [
+        "puppeteer",
+        "koot"
+    ],
+    "license": "Apache-2.0",
+    "author": {
+        "name": "diablohu",
+        "email": "diablohudream@gmail.com",
+        "url": "http://diablohu.com"
+    },
+    "bugs": {
+        "url": "https://github.com/cmux/koot/issues"
+    },
+    "homepage": "https://github.com/cmux/koot/tree/master/packages/koot-diagnose#readme",
+    "engines": {
+        "node": ">=8.9.0"
+    },
+    "dependencies": {
+        "chalk": "^2.4.2",
+        "cheerio": "^1.0.0-rc.3",
+        "commander": "^4.0.0",
+        "lighthouse": "^5.6.0",
+        "puppeteer": "^2.0.0",
+        "puppeteer-cluster": "^0.17.0"
+    },
+    "devDependencies": {
+        "eslint": "^6.6.0",
+        "eslint-config-koot": "^1.5.0",
+        "fs-extra": "^8.1.0",
+        "jest": "^24.9.0",
+        "lint-staged": "^9.4.2",
+        "prettier": "^1.18.2",
+        "prettier-eslint": "^9.0.0",
+        "terminate": "^2.1.2"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.{js,jsx,cjs,mjs}": [
+            "eslint --fix",
+            "prettier --write",
+            "git add"
+        ],
+        "*.{ts,tsx}": [
+            "eslint --fix",
+            "prettier --write",
+            "git add"
+        ],
+        "*.{xxxxxx}": [
+            "tsc --noEmit"
+        ],
+        "*.{json,md,css,less,sass,scss}": [
+            "prettier --write",
+            "git add"
+        ]
+    }
+}
