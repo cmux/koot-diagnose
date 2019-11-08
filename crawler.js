@@ -6,8 +6,6 @@ const { Cluster } = require('puppeteer-cluster');
 const ignoredStatus = [301, 302, 304];
 /** 大文件尺寸阈值 */
 const largeFileThreshold = 300 * 1024; // 300KB
-/** 相似地址次数阈值 */
-// const similarCountThreshold = 10;
 
 /**
  * 利用爬虫尝试访问站点内的所有链接，检测以下内容
@@ -18,15 +16,19 @@ const largeFileThreshold = 300 * 1024; // 300KB
  * @async
  * @param {string} urlEntry
  * @param {Object} [options={}]
- * @param {Number} [options.maxCrawl] 最多访问的页面数量
+ * @param {number} [options.maxCrawl] 最多访问的页面数量
  * @param {Object} [options.cluster] puppeteer-cluster 选项
+ * @param {number} [options.similarCountMax=10] 相似地址的最多请求次数，`false` 或`负数`表示无限制
+ * @param {boolean} [options.verbose=false] 是否输出更多的日志
  * @return {Promise<Object>}
  */
 const crawler = async (urlEntry, options = {}) => {
     const {
         // debug = false,
         maxCrawl = undefined,
-        cluster: clusterOptions = {}
+        cluster: clusterOptions = {},
+        similarCountMax = 10,
+        verbose = false
     } = options;
     const errors = [];
     const errObj = {};
@@ -36,8 +38,11 @@ const crawler = async (urlEntry, options = {}) => {
     let startUrl;
     let crawlCount = 0;
     const urls = {
+        /** 已访问的 URL */
         visited: [],
-        queue: []
+        /** URL 队列 */
+        queue: [],
+        knownRoutesCount: {}
     };
     const cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
@@ -59,14 +64,38 @@ const crawler = async (urlEntry, options = {}) => {
         // 如果是外站地址，忽略
         if (url.origin !== startUrl.origin) return;
         // 如果相似的地址出现过多次，忽略
-        // {
-        //     const segs = url.pathname.split('/');
-        //     const similarCount = allUrls.reduce((count, existUrl) => {
-        //         (new URL(existUrl)).pathname.split('/');
-        //         return count;
-        //     }, 0);
-        //     if (similarCount > similarCountThreshold) return;
-        // }
+        {
+            const segs = url.pathname.split('/');
+            segs.pop();
+            const pathnameExlucdeLastSeg = segs.join('/');
+            if (
+                pathnameExlucdeLastSeg &&
+                urls.knownRoutesCount[pathnameExlucdeLastSeg]
+            ) {
+                const count = urls.knownRoutesCount[pathnameExlucdeLastSeg];
+                if (
+                    similarCountMax === false ||
+                    (typeof similarCountMax === 'number' &&
+                        similarCountMax < 0) ||
+                    count < similarCountMax
+                ) {
+                    urls.knownRoutesCount[pathnameExlucdeLastSeg] = count + 1;
+                } else {
+                    if (verbose)
+                        console.log(
+                            `Path '${url.pathname}' similar to other ${similarCountMax} urls. Ignored.`
+                        );
+                    return;
+                }
+            } else {
+                urls.knownRoutesCount[pathnameExlucdeLastSeg] = 1;
+            }
+            //     const similarCount = allUrls.reduce((count, existUrl) => {
+            //         (new URL(existUrl)).pathname.split('/');
+            //         return count;
+            //     }, 0);
+            //     if (similarCount > similarCountThreshold) return;
+        }
 
         if (!maxCrawl || crawlCount < maxCrawl) {
             crawlCount++;
