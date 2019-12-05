@@ -126,9 +126,7 @@ const crawler = async (urlEntry, options = {}) => {
                     matches.length > 2
                 ) {
                     return {
-                        msg: `request \`${matches[2]}\` broken (net::${
-                            matches[1]
-                        })`,
+                        msg: `request \`${matches[2]}\` broken (net::${matches[1]})`,
                         url: matches[2],
                         type: 'broken request'
                     };
@@ -221,10 +219,11 @@ const crawler = async (urlEntry, options = {}) => {
             const thisUrl = res.url();
             const pageUrl = thisUrl !== url ? url : undefined;
 
-            if (!res.ok())
+            if (!res.ok()) {
                 return addError('broken request', res, {
                     pageUrl
                 });
+            }
 
             if (new URL(thisUrl).origin !== new URL(pageUrl || url).origin)
                 return;
@@ -275,7 +274,7 @@ const crawler = async (urlEntry, options = {}) => {
                     waitUntil: 'networkidle2'
                 })
                 .catch(e => {
-                    addError(e);
+                    addError(e, { pageUrl: url });
                     // return context.close();
                 });
 
@@ -304,15 +303,17 @@ const crawler = async (urlEntry, options = {}) => {
                 });
 
                 // add CSR links
-                (await page.$$eval(selector, links =>
-                    links
-                        .map(link => {
-                            if (!link) return undefined;
-                            const href = link.getAttribute('href');
-                            return href;
-                        })
-                        .filter(url => !!url)
-                )).forEach(href => {
+                (
+                    await page.$$eval(selector, links =>
+                        links
+                            .map(link => {
+                                if (!link) return undefined;
+                                const href = link.getAttribute('href');
+                                return href;
+                            })
+                            .filter(url => !!url)
+                    )
+                ).forEach(href => {
                     try {
                         addUrl(href, page.url());
                     } catch (e) {
