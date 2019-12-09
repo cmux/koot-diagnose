@@ -1,8 +1,15 @@
 declare module 'kootDiagnoseCrawler';
 
 export interface CrawlerOptions {
-    /** 最多访问的页面数量 */
+    /** 请求的页面数量总上限 */
     maxCrawl?: number;
+    /** 相似地址的最多请求次数，`false` 或`负数`表示无限制 */
+    similarCountMax?: number | false;
+    /**
+     * 是否输出更多的日志
+     * @default false
+     */
+    verbose?: boolean;
     /** `puppeteer-cluster` 选项 */
     cluster?: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

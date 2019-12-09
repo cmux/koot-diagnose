@@ -11,12 +11,16 @@ program
     .usage('[options]')
     .option('--crawler <startURL>', 'Run Crawler, starting with URL startURL.')
     .option('--memory <startURL>', 'Run Memory, starting with URL startURL.')
+    .option(
+        '--psi <startURL>',
+        'Run PageSpeed test for the home page of startURL.'
+    )
     .parse(process.argv);
 
 //
 
 (async () => {
-    const { crawler, memory } = program;
+    const { crawler, memory, psi } = program;
     const startTS = Date.now();
 
     if (crawler) {
@@ -89,6 +93,12 @@ program
             console.log(`   heap used:  ${getSize(r.JSHeapUsedSize)}`);
             console.log(`   heap total: ${getSize(r.JSHeapTotalSize)}`);
         });
+        console.log('');
+    } else if (psi) {
+        console.log('Running PageSpeed tests...');
+        console.log('');
+        const result = await require('./psi')(psi);
+        console.dir(result);
         console.log('');
     }
 
