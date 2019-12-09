@@ -24,3 +24,7 @@ Automate test cases for any website, webapp, HTML5 page and more. Uses by _Koot.
 **memory**
 
 在指定站点内随机的进行操作，持续一段较长的时间，检查内存占用情况
+
+**psi**
+
+对目标域名的首页进行 PageSpeed Insights 检测
