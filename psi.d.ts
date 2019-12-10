@@ -22,9 +22,23 @@ async function psi(
      * https://developers.google.com/speed/docs/insights/v5/reference/pagespeedapi/runpagespeed#parameters
      */
     parameters: {
+        category?: Category | Category[];
+        locale?: string;
+        strategy?: 'desktop' | 'mobile';
+        utm_campaign?: string;
+        utm_source?: string;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [errorType: string]: any;
     } = {}
 ): Promise<PSIResult>;
 
 export default psi;
+
+// ============================================================================
+
+type Category =
+    | 'accessibility'
+    | 'best-practices'
+    | 'performance'
+    | 'pwa'
+    | 'seo';
