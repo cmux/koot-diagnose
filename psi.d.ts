@@ -1,9 +1,49 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 declare module 'kootDiagnosePSI';
 
-export type PSIResult = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface PSIResult {
+    lighthouseResult: {
+        audits: {
+            [auditId: string]: {
+                id: string;
+                title: string;
+                description?: string;
+                score: string;
+                scoreDisplayMode: string;
+                numericValue?: number;
+                displayValue?: string;
+                details: {
+                    [detail: string]: any;
+                };
+            };
+        };
+        categories: {
+            [categoryId: string]: {
+                id: string;
+                title: string;
+                auditRefs: {
+                    [auditId: number]: {
+                        id: string;
+                        weight: number;
+                        group?: string;
+                    };
+                };
+                score: number;
+                description?: string;
+                manualDescription?: string;
+            };
+        };
+        categoryGroups: {
+            [groupId: string]: {
+                title: string;
+                description?: string;
+            };
+        };
+        [key: string]: any;
+    };
     [errorType: string]: any;
-};
+}
 
 //
 
@@ -27,7 +67,6 @@ async function psi(
         strategy?: 'desktop' | 'mobile';
         utm_campaign?: string;
         utm_source?: string;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [errorType: string]: any;
     } = {}
 ): Promise<PSIResult>;
