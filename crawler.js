@@ -322,7 +322,7 @@ const crawler = async (urlEntry, options = {}) => {
                 });
             }
 
-            // await page.close();
+            await page.close();
             // await context.close();
 
             // 将 url 从 queue 移动到 visited
@@ -338,11 +338,16 @@ const crawler = async (urlEntry, options = {}) => {
         // return errors;
     };
 
-    await cluster.task(async ({ page, data: url }) => {
-        await crawl(page, url);
-        // const screen = await page.screenshot();
-        // Store screenshot, do something else
-    });
+    try {
+        await cluster.task(async ({ page, data: url }) => {
+            await crawl(page, url);
+            // const screen = await page.screenshot();
+            // Store screenshot, do something else
+        });
+    } catch (e) {
+        await cluster.close();
+        return {};
+    }
 
     // await crawl(urlEntry);
 
